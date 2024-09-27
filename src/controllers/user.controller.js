@@ -2,6 +2,10 @@ import { User } from "../models/users.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import {
+  validateInputsLogin,
+  validateInputsSignup,
+} from "../utils/validate.js";
 
 const options = {
   httpOnly: true,
@@ -9,6 +13,8 @@ const options = {
 };
 
 const signup = asyncHandler(async (req, res) => {
+  validateInputsSignup(req.body);
+
   const { email, username, password } = req.body;
 
   if (!email || !username || !password) {
@@ -48,6 +54,7 @@ const signup = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
+  validateInputsLogin(req.body);
   const { email, password } = req.body;
   if (!email || !password) {
     throw new ApiError(400, "email or password missing");
