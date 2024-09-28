@@ -1,27 +1,37 @@
 import mongoose from "mongoose";
 
-const todoItemSchema = new mongoose.Schema({
-  todo: {
+const subTodoListSchema = new mongoose.Schema({
+  todoName: {
     type: String,
   },
-  done: {
-    type: Boolean,
-    default: false,
+  status: {
+    type: String,
+    enum: ["To Do", "In Progress", "Done"],
+    default: "To Do",
+  },
+  dueDate: {
+    type: Date,
+    required: true,
+  },
+  Note: {
+    type: String,
   },
 });
 
 const todoSchema = new mongoose.Schema(
   {
-    todoTitle: {
+    todoListName: {
       type: String,
       required: true,
-      unique: true,
     },
-    todoItems: [todoItemSchema],
+    subTodo: [subTodoListSchema],
 
-    creator: {
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+    },
+    backgroundImage: {
+      type: String,
     },
   },
   { timestamps: true }
