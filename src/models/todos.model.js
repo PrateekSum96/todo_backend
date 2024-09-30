@@ -24,6 +24,7 @@ const todoSchema = new mongoose.Schema(
     todoListName: {
       type: String,
       required: true,
+      unique: true,
     },
     subTodo: [subTodoListSchema],
 

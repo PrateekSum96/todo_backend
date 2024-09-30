@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { Todo } from "../models/todos.model.js";
@@ -43,6 +41,9 @@ const editTodo = asyncHandler(async (req, res) => {
   validateSubTodoData(req.body);
 
   const todoList = await Todo.findById(todoListId);
+  if (!todoList) {
+    throw new ApiError(404, "Todo list not found");
+  }
 
   if (todoList.createdBy.toString() != req.user._id.toString()) {
     throw new ApiError(403, "Not permitted to update todo");
