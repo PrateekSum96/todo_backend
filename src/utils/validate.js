@@ -46,3 +46,18 @@ export const validateInputsLogin = (userInfo) => {
     throw new ApiError(400, errors);
   }
 };
+
+export const validateSubTodoData = (todoDetails) => {
+  const validateSubTodoDetails = z.object({
+    todoName: z.string({ message: "abc" }),
+    status: z.enum(["To Do", "In Progress", "Done"]),
+    dueDate: z.string(),
+    note: z.string(),
+  });
+
+  const isTodoDetailValid = validateSubTodoDetails.safeParse(todoDetails);
+
+  if (!isTodoDetailValid.success) {
+    throw new ApiError(400, "Input validation failed");
+  }
+};
