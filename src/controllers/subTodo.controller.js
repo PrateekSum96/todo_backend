@@ -97,4 +97,30 @@ const deleteTodo = asyncHandler(async (req, res) => {
     );
 });
 
-export { addTodo, editTodo, deleteTodo };
+const getTodo = asyncHandler(async (req, res) => {
+  const { todoListId, todoId } = req.params;
+  const todoList = await Todo.findById(todoListId);
+
+  if (!todoList) {
+    throw new ApiError(404, "TodoList not found.");
+  }
+
+  if (todoList.createdBy.toString() != req.user._id.toString()) {
+    throw new ApiError(403, "Not permitted to delete todo");
+  }
+
+  const todo = await Todo.findOne(
+    { _id: todoListId, "subTodo._id": todoId },
+    { "subTodo.$": 1 }
+  );
+  if (!todo) {
+    throw new ApiError(404, "Todo not found.");
+  }
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, { todo: todo.subTodo[0] }, "Todo sent successfully")
+    );
+});
+
+export { addTodo, editTodo, deleteTodo, getTodo };

@@ -142,4 +142,35 @@ const deleteTodoList = asyncHandler(async (req, res) => {
     );
 });
 
-export { addTodoList, updateTodoListName, updateTodoListImage, deleteTodoList };
+const getAllTodoLists = asyncHandler(async (req, res) => {
+  const user = req.user;
+  const allTodoList = await Todo.find({ createdBy: user._id });
+  res
+    .status(200)
+    .json(new ApiResponse(200, allTodoList, "All todo list sent successfully"));
+});
+
+const getATodoList = asyncHandler(async (req, res) => {
+  const { todoListId } = req.params;
+  const todoList = await Todo.findById(todoListId);
+
+  if (req.user._id.toString() !== todoList.createdBy.toString()) {
+    throw new ApiError(403, "You do not have access");
+  }
+  if (!todoList) {
+    throw new ApiError(404, "Todo list not found.");
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, { todoList }, "Todo list sent successfully"));
+});
+
+export {
+  addTodoList,
+  updateTodoListName,
+  updateTodoListImage,
+  deleteTodoList,
+  getAllTodoLists,
+  getATodoList,
+};
