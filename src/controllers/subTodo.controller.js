@@ -106,7 +106,7 @@ const getTodo = asyncHandler(async (req, res) => {
   }
 
   if (todoList.createdBy.toString() != req.user._id.toString()) {
-    throw new ApiError(403, "Not permitted to delete todo");
+    throw new ApiError(403, "Not permitted to get todo");
   }
 
   const todo = await Todo.findOne(
