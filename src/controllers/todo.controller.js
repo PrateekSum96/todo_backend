@@ -154,11 +154,11 @@ const getATodoList = asyncHandler(async (req, res) => {
   const { todoListId } = req.params;
   const todoList = await Todo.findById(todoListId);
 
-  if (req.user._id.toString() !== todoList.createdBy.toString()) {
-    throw new ApiError(403, "You do not have access");
-  }
   if (!todoList) {
     throw new ApiError(404, "Todo list not found.");
+  }
+  if (req.user._id.toString() !== todoList.createdBy.toString()) {
+    throw new ApiError(403, "You do not have access");
   }
 
   res
