@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const subTodoListSchema = new mongoose.Schema({
   todoName: {
     type: String,
+    required: true,
   },
   status: {
     type: String,
@@ -10,10 +11,10 @@ const subTodoListSchema = new mongoose.Schema({
     default: "To Do",
   },
   dueDate: {
-    type: Date,
+    type: String,
     required: true,
   },
-  Note: {
+  note: {
     type: String,
   },
 });
