@@ -19,10 +19,10 @@ const router = Router();
 
 //todo list route
 router.post("/todo-list", verifyJwt, addTodoList);
+router.get("/todo-lists", verifyJwt, getAllTodoLists);
 router.put("/todo-lists/:todoListId/name", verifyJwt, updateTodoListName);
 router.put("/todo-lists/:todoListId/image", verifyJwt, updateTodoListImage);
 router.delete("/todo-lists/:todoListId", verifyJwt, deleteTodoList);
-router.get("/todo-lists", verifyJwt, getAllTodoLists);
 router.get("/todo-lists/:todoListId", verifyJwt, getATodoList);
 
 //todo route
