@@ -6,55 +6,47 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const addTodoList = asyncHandler(async (req, res) => {
-  const todoListName = req.body.todoListName.trim();
+  const todoListName = req.body.todoListName;
 
-  const validTodoName = z.string().min(1);
+  const validTodoName = z.string().trim().min(1);
   const isTodoNameValid = validTodoName.safeParse(todoListName);
-
   if (!isTodoNameValid.success) {
     throw new ApiError(400, "Todo list name is not valid.");
   }
 
   const userId = req.user._id;
 
-  let addedTodoName;
+  const existedTodoName = await Todo.countDocuments({
+    todoListName,
+    createdBy: userId,
+  });
 
-  const existedTodoName = await Todo.find({ todoListName, createdBy: userId });
-
-  if (existedTodoName.length === 0) {
-    addedTodoName = await Todo.create({ todoListName, createdBy: userId });
-  } else {
-    addedTodoName = await Todo.create({
-      todoListName: `${todoListName}(${existedTodoName.length})`,
-      createdBy: userId,
-    });
+  if (existedTodoName) {
+    throw new ApiError(409, "Todo list name already present.");
   }
+  const addedTodoListName = await Todo.create({
+    todoListName,
+    createdBy: userId,
+  });
 
-  const cratedTodo = await Todo.findById(addedTodoName._id);
-
-  if (!cratedTodo) {
-    throw new ApiError(
-      500,
-      "Something went wrong while creating todo list name"
-    );
-  }
+  const allTodoListByUser = await Todo.find({ createdBy: userId });
 
   return res
     .status(201)
     .json(
       new ApiResponse(
         200,
-        { todoList: cratedTodo },
+        { allTodoListByUser, addedTodoList: addedTodoListName },
         "Todo list successfully created."
       )
     );
 });
 
 const updateTodoListName = asyncHandler(async (req, res) => {
-  const updatedListName = req.body.updatedListName.trim();
+  const updatedListName = req.body.updatedListName;
   const todoListId = req.params.todoListId;
 
-  const validTodoListName = z.string().min(1);
+  const validTodoListName = z.string().trim().min(1);
   const isTodoListNameValid = validTodoListName.safeParse(updatedListName);
   if (!isTodoListNameValid.success) {
     throw new ApiError(400, "Todo list name is invalid.");
@@ -80,12 +72,13 @@ const updateTodoListName = asyncHandler(async (req, res) => {
     );
   }
 
+  const allTodoListByUser = await Todo.find({ createdBy: req.user._id });
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { todoList: updatedTodoList },
+        { updatedTodoList, allTodoListByUser },
         "Todo list name updated successfully"
       )
     );
@@ -137,9 +130,16 @@ const deleteTodoList = asyncHandler(async (req, res) => {
   if (!deletedTodoList) {
     throw new ApiError(500, "Something went wrong while deleting.");
   }
+  const allTodoListByUser = await Todo.find({ createdBy: req.user._id });
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Todo list successfully deleted."));
+    .json(
+      new ApiResponse(
+        200,
+        { allTodoListByUser },
+        "Todo list successfully deleted."
+      )
+    );
 });
 
 export { addTodoList, updateTodoListName, updateTodoListImage, deleteTodoList };
